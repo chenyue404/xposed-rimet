@@ -23,6 +23,7 @@ import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -77,8 +78,9 @@ public class StationPresenter extends AbstractPresenter implements StationContra
             if (tr instanceof DataException) {
                 mView.onAddFailed(tr.getMessage());
             } else {
-                mView.onAddFailed("添加信息失败!");
+                mView.onAddFailed("添加信息失败!\n" + tr.toString());
             }
+            Log.d("ddzs", tr.toString());
         });
         task.executeOnExecutor(ExecutorUtil.getBackExecutor(), name);
     }
@@ -123,7 +125,7 @@ public class StationPresenter extends AbstractPresenter implements StationContra
                 getContext().getSystemService(Context.TELEPHONY_SERVICE);
 
         if (telephonyManager == null) {
-            throw new DataException("获取基站信息失败!");
+            throw new DataException("获取基站信息失败!\ntelephonyManager空");
         }
 
         // 返回值MCC + MNC
@@ -142,27 +144,44 @@ public class StationPresenter extends AbstractPresenter implements StationContra
         CellLocation cellLocation = telephonyManager.getCellLocation();
 
         if (cellLocation == null) {
-            throw new DataException("获取基站信息失败!");
+            throw new DataException("获取基站信息失败!\ncellLocation空");
         }
 
         int lac;
         int cellId;
+        String simType = "";
 
         // 中国移动和中国联通获取LAC、CID的方式
-        if (mnc != 3 && mnc != 5 && mnc != 11) {
+        if ((mnc != 3 && mnc != 5 && mnc != 11) || cellLocation instanceof GsmCellLocation) {
             @SuppressLint("MissingPermission")
             GsmCellLocation gsmCellLocation = (GsmCellLocation) cellLocation;
             lac = gsmCellLocation.getLac();
             cellId = gsmCellLocation.getCid();
+            simType = "Gsm";
         } else {
             @SuppressLint("MissingPermission")
             CdmaCellLocation cdmaCellLocation = (CdmaCellLocation) cellLocation;
             lac = cdmaCellLocation.getNetworkId();
             cellId = cdmaCellLocation.getBaseStationId();
+            simType = "Cdma";
+        }
+
+        Log.d("ddzs", "lac=" + lac + ", cellId=" + cellId + ", simType=" + simType);
+        Log.d("ddzs", "name=" + name + ", mcc=" + mcc + ", mnc=" + mnc);
+
+        if (name.contains("--")) {
+            String[] strings = name.split("--");
+            name = strings[0] + simType;
+            if (cellId == -1 && strings.length > 1) {
+                cellId = Integer.parseInt(strings[1]);
+            }
+            if (lac == -1 && strings.length > 2) {
+                lac = Integer.parseInt(strings[2]);
+            }
         }
 
         if (lac == -1 || cellId == -1) {
-            throw new DataException("获取基站信息失败!");
+            throw new DataException("获取基站信息失败!\nlac=" + lac + ", cellId=" + cellId);
         }
         return new StationModel(name, mcc, mnc, lac, cellId);
     }

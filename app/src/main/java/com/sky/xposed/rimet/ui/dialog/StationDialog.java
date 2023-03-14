@@ -129,30 +129,30 @@ public class StationDialog extends BasePluginDialog implements
 
             String alias = getDefaultPreferences().getString(XConstant.Key.LAST_ALIAS);
             DialogUtil.showEditDialog(getContext(),
-                    "提示", alias, "请输入保存的别名", (view, value) -> {
+                    "提示", alias, "名字--cellId--lac", (view, value) -> {
 
-                if (TextUtils.isEmpty(value)) {
-                    showMessage("输入的信息不能为空!");
-                    return;
-                }
+                        if (TextUtils.isEmpty(value)) {
+                            showMessage("输入的信息不能为空!");
+                            return;
+                        }
 
-                // 保存名称
-                getDefaultPreferences().putString(XConstant.Key.LAST_ALIAS, value);
+                        // 保存名称
+                        getDefaultPreferences().putString(XConstant.Key.LAST_ALIAS, value);
 
-                // 添加
-                mPresenter.add(value);
-            });
+                        // 添加
+                        mPresenter.add(value);
+                    });
             return true;
         } else if (2 == itemId) {
             // 清空
             DialogUtil.showDialog(getContext(),
                     "提示", "\n是否清空列表所有信息!", (dialog, which) -> {
 
-                if (mStationModels != null) {
-                    mStationModels.clear();
-                    mPresenter.save(mStationModels);
-                }
-            });
+                        if (mStationModels != null) {
+                            mStationModels.clear();
+                            mPresenter.save(mStationModels);
+                        }
+                    });
             return true;
         }
         return super.onMoreItemSelected(item);
@@ -175,10 +175,10 @@ public class StationDialog extends BasePluginDialog implements
 
         DialogUtil.showDialog(getContext(),
                 "提示", "\n是否删除该基站信息?", (dialog, which) -> {
-            // 删除信息并保存
-            mStationModels.remove(position);
-            mPresenter.save(mStationModels);
-        });
+                    // 删除信息并保存
+                    mStationModels.remove(position);
+                    mPresenter.save(mStationModels);
+                });
         return true;
     }
 
@@ -235,7 +235,7 @@ public class StationDialog extends BasePluginDialog implements
             PermissionUtil.requestPermissions(getActivity(),
                     new String[]{
                             Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION },
+                            Manifest.permission.ACCESS_FINE_LOCATION},
                     99);
             return false;
         }

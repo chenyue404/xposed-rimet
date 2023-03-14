@@ -83,7 +83,7 @@ public class StationModel implements Serializable {
     }
 
     public String getDesc() {
-        return "mcc: " + getMnc() +
+        return "mcc: " + getMcc() +
                 "\tmnc: " + getMnc() + "\n" +
                 "lac: " + getLac() +
                 "\tcellId: " + getCellId();
